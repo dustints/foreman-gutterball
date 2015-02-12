@@ -5,6 +5,7 @@ module ForemanGutterball
       url = cfg['foreman_gutterball']['url']
       self.prefix = URI.parse(url).path
       self.site = url.gsub(prefix, '')
+      self.class.site = url.gsub(prefix, '')
       self.consumer_secret = cfg[:oauth_consumer_secret]
       self.consumer_key = cfg[:oauth_consumer_key]
       self.ca_cert_file = cfg[:ca_cert_file]
