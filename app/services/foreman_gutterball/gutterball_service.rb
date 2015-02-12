@@ -44,7 +44,7 @@ module ForemanGutterball
       params[:owner] = 'redhat' # temporarily to test against another server
       params.delete(:organization_id)
 
-      params[:custom] = 1
+      params[:custom_results] = 1
     end
 
     def format_consumer_status_response(response)
