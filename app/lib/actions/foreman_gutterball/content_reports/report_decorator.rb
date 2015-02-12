@@ -15,6 +15,11 @@ module Actions
             raise 'unable to decorate this report'
           end
         end
+
+        #primative output rather than serilization
+        def serialize(report)
+          JSON.parse(decorate(report).to_json)
+        end
       end
 
       class ReportAssociativeArrayDecorator
@@ -52,7 +57,7 @@ module Actions
         def respond_to_missing?(method_name, include_private = false)
           has_key?(method_name.to_s) || super
         end
-
+        
         def to_json(hash = {})
           result = {}
           @report.keys.each do |key|

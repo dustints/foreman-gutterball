@@ -1,4 +1,3 @@
-require 'debugger'
 require 'json'
 require 'active_support/inflector'
 
