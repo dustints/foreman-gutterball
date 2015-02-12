@@ -1,7 +1,7 @@
 require 'json'
 require 'active_support/inflector'
 
-class ReportDecTest < ActiveSupport::TestCase
+class ReportFormatterTest < ActiveSupport::TestCase
   test 'to_json' do
     example = <<-EOF
     {
@@ -31,7 +31,7 @@ class ReportDecTest < ActiveSupport::TestCase
     }
     EOF
     resp = JSON.parse(example)
-    decorator  = ::Actions::ForemanGutterball::ContentReports::ReportDecorator.new.decorate(resp)
+    decorator  = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(resp)
     assert_equal decorator.system.owner.display_name, 'ACME Corporation'
   end
 end

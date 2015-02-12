@@ -1,28 +1,28 @@
 module Actions
   module ForemanGutterball
     module ContentReports
-      class ReportDecorator
-        def decorate(report)
+      class ReportFormatter
+        def format(report)
           if report.is_a?(Hash)
-            ::Actions::ForemanGutterball::ContentReports::ReportAssociativeArrayDecorator.new(report)
+            ::Actions::ForemanGutterball::ContentReports::ReportHashFormatter.new(report)
           elsif report.is_a?(Array)
-            ::Actions::ForemanGutterball::ContentReports::ReportArrayDecorator.new(report) 
+            ::Actions::ForemanGutterball::ContentReports::ReportArrayFormatter.new(report)
           elsif report.is_a?(String)
             report
           elsif report.nil?
             ""
           else
-            raise 'unable to decorate this report'
+            raise 'unable to format this report'
           end
         end
 
         #primative output rather than serilization
         def serialize(report)
-          JSON.parse(decorate(report).to_json)
+          JSON.parse(format(report).to_json)
         end
       end
 
-      class ReportAssociativeArrayDecorator
+      class ReportHashFormatter
         def initialize(report)
           @report = report
         end
@@ -37,9 +37,9 @@ module Actions
           guide = key_translation_mapping
           guide.keys.map{|key| guide[key] }
         end
-        
+
         def get(key)
-          ReportDecorator.new.decorate(@report[key] || @report[key_translation_mapping.invert[key]])
+          ReportFormatter.new.format(@report[key] || @report[key_translation_mapping.invert[key]])
         end
 
         def has_key?(key)
@@ -57,16 +57,16 @@ module Actions
         def respond_to_missing?(method_name, include_private = false)
           has_key?(method_name.to_s) || super
         end
-        
+
         def to_json(hash = {})
           result = {}
           @report.keys.each do |key|
-            result[key_translation_mapping[key]] = ReportDecorator.new.decorate(@report[key])
+            result[key_translation_mapping[key]] = ReportFormatter.new.format(@report[key])
           end
           result.to_json
         end
       end
- 
+
       class KatelloToCandlepinTranslator
         CP_TO_KAT_SPEAK = {
           'consumer' => 'system',
@@ -80,8 +80,8 @@ module Actions
           end
         end
       end
-      
-      class ReportArrayDecorator
+
+      class ReportArrayFormatter
         include Enumerable
 
         def initialize(*members)
@@ -90,7 +90,7 @@ module Actions
 
         def each(&block)
           @members.each do |member|
-            block.call(ReportDecorator.new.decorate(member))
+            block.call(ReportFormatter.new.decorate(member))
           end
         end
       end
