@@ -30,7 +30,8 @@ module ForemanGutterball
       format_query(query_params)
       path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
       resp = JSON.parse self.class.get(path, default_headers)
-      send("format_#{report_key}_response", resp) # REFLECTION!!!11!1
+      formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(JSON.parse(resp))
+      send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
     end
 
     private
