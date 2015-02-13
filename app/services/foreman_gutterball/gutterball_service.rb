@@ -3,10 +3,10 @@ module ForemanGutterball
     def initialize
       cfg = SETTINGS.with_indifferent_access
       url = cfg['foreman_gutterball']['url']
-      self.uri = URI.parse(url)
-      self.prefix = self.uri.path
-      self.site = "#{self.uri.scheme}://#{self.uri.host}:#{self.uri.port}"
-      self.class.site = "#{self.uri.scheme}://#{self.uri.host}:#{self.uri.port}"
+      @uri = URI.parse(url)
+      self.prefix = @uri.path
+      self.site = "#{@uri.scheme}://#{@uri.host}:#{@uri.port}"
+      self.class.site = self.site
       self.consumer_secret = cfg[:oauth_consumer_secret]
       self.consumer_key = cfg[:oauth_consumer_key]
       self.ca_cert_file = cfg[:ca_cert_file]
@@ -34,6 +34,7 @@ module ForemanGutterball
       path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
       require 'debugger'
       debugger
+      #might need a SAX parser after looking at all that data
       resp = JSON.parse self.class.get(path, default_headers)
       formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(JSON.parse(resp))
       send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
@@ -50,6 +51,7 @@ module ForemanGutterball
       params[:owner] = 'redhat' # temporarily to test against another server
       params.delete(:organization_id)
 
+      params[:per_page] ||= 100
       params[:custom_results] = 1
     end
 
