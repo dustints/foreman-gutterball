@@ -29,15 +29,11 @@ module ForemanGutterball
 
     def report(report_key, query_params)
       format_query(query_params)
-      require 'debugger'
-      debugger
       path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
-      require 'debugger'
-      debugger
       #might need a SAX parser after looking at all that data
-      resp = JSON.parse self.class.get(path, default_headers)
-      formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
-      send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
+      resp = JSON.parse(self.class.get(path, default_headers))
+      ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
+      #send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
     end
 
     private

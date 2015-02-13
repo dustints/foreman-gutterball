@@ -18,11 +18,13 @@ module Actions
 
         #primative output rather than serilization
         def serialize(report)
-          JSON.parse(format(report).to_json)
+          JSON.parse(::JSON.generate(format(report)))
         end
       end
 
       class ReportHashFormatter
+        attr_accessor :report
+
         def initialize(report)
           @report = report
         end
@@ -58,12 +60,20 @@ module Actions
           has_key?(method_name.to_s) || super
         end
 
-        def to_json(hash = {})
+        def to_hash
           result = {}
           @report.keys.each do |key|
             result[key_translation_mapping[key]] = ReportFormatter.new.format(@report[key])
           end
-          result.to_json
+          result
+        end
+
+        def to_json(options = nil) 
+          result = {}
+          @report.keys.each do |key|
+            result[key_translation_mapping[key]] = ReportFormatter.new.format(@report[key])
+          end
+          ::JSON.generate(result)
         end
       end
 
@@ -83,6 +93,7 @@ module Actions
 
       class ReportArrayFormatter
         include Enumerable
+        attr_accessor :members
 
         def initialize(members)
           @members = members.map{|m| ReportFormatter.new.format(m)}
@@ -93,9 +104,9 @@ module Actions
             block.call(member)
           end
         end
-
-        def to_json(hash = {})
-          @members.to_json
+        
+        def to_json(options = nil)
+          ::JSON.generate(@members)
         end
       end
     end
