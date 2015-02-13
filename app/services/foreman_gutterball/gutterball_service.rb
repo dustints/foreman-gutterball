@@ -36,7 +36,7 @@ module ForemanGutterball
       debugger
       #might need a SAX parser after looking at all that data
       resp = JSON.parse self.class.get(path, default_headers)
-      formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(JSON.parse(resp))
+      formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
       send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
     end
 
