@@ -10,9 +10,9 @@ module Actions
           elsif report.is_a?(String)
             report
           elsif report.nil?
-            ""
+            "nil"
           else
-            raise 'unable to format this report'
+            report.to_s
           end
         end
 
@@ -84,14 +84,18 @@ module Actions
       class ReportArrayFormatter
         include Enumerable
 
-        def initialize(*members)
-          @members = members
+        def initialize(members)
+          @members = members.map{|m| ReportFormatter.new.format(m)}
         end
 
         def each(&block)
           @members.each do |member|
-            block.call(ReportFormatter.new.decorate(member))
+            block.call(member)
           end
+        end
+
+        def to_json(hash = {})
+          @members.to_json
         end
       end
     end
