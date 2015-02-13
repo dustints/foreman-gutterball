@@ -3,9 +3,10 @@ module ForemanGutterball
     def initialize
       cfg = SETTINGS.with_indifferent_access
       url = cfg['foreman_gutterball']['url']
-      self.prefix = URI.parse(url).path
-      self.site = url.gsub(prefix, '')
-      self.class.site = url.gsub(prefix, '')
+      self.uri = URI.parse(url)
+      self.prefix = self.uri.path
+      self.site = "#{self.uri.scheme}://#{self.uri.host}:#{self.uri.port}"
+      self.class.site = "#{self.uri.scheme}://#{self.uri.host}:#{self.uri.port}"
       self.consumer_secret = cfg[:oauth_consumer_secret]
       self.consumer_key = cfg[:oauth_consumer_key]
       self.ca_cert_file = cfg[:ca_cert_file]
@@ -28,7 +29,11 @@ module ForemanGutterball
 
     def report(report_key, query_params)
       format_query(query_params)
+      require 'debugger'
+      debugger
       path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
+      require 'debugger'
+      debugger
       resp = JSON.parse self.class.get(path, default_headers)
       formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(JSON.parse(resp))
       send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
