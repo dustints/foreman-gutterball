@@ -32,8 +32,8 @@ module ForemanGutterball
       path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
       #might need a SAX parser after looking at all that data
       resp = JSON.parse(self.class.get(path, default_headers))
-      ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
-      #send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
+      formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
+      send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
     end
 
     private
@@ -62,8 +62,12 @@ module ForemanGutterball
     end
 
     def format_status_trend_response(response)
-      # moar crazy
-      response
+      require 'debugger'
+      debugger
+      response.map do |status|
+        timestamp = status[0]
+        {'timestamp' => timestamp}.merge(status[1])
+      end
     end
   end
 end
