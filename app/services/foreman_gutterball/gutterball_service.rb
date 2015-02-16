@@ -6,7 +6,7 @@ module ForemanGutterball
       @uri = URI.parse(url)
       self.prefix = @uri.path
       self.site = "#{@uri.scheme}://#{@uri.host}:#{@uri.port}"
-      self.class.site = self.site
+      self.class.site = site
       self.consumer_secret = cfg[:oauth_consumer_secret]
       self.consumer_key = cfg[:oauth_consumer_key]
       self.ca_cert_file = cfg[:ca_cert_file]
@@ -30,7 +30,7 @@ module ForemanGutterball
     def report(report_key, query_params)
       format_query(query_params)
       path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
-      #might need a SAX parser after looking at all that data
+      # might need a SAX parser after looking at all that data
       resp = JSON.parse(self.class.get(path, default_headers))
       formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
       send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
@@ -62,11 +62,9 @@ module ForemanGutterball
     end
 
     def format_status_trend_response(response)
-      require 'debugger'
-      debugger
       response.map do |status|
         timestamp = status[0]
-        {'timestamp' => timestamp}.merge(status[1])
+        { 'timestamp' => timestamp }.merge(status[1])
       end
     end
   end

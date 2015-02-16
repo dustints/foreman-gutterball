@@ -10,13 +10,13 @@ module Actions
           elsif report.is_a?(String)
             report
           elsif report.nil?
-            "nil"
+            'nil'
           else
             report.to_s
           end
         end
 
-        #primative output rather than serilization
+        # primative output rather than serilization
         def serialize(report)
           JSON.parse(::JSON.generate(format(report)))
         end
@@ -31,25 +31,25 @@ module Actions
 
         def key_translation_mapping
           result = {}
-          @report.keys.each{|key| result[key] = KatelloToCandlepinTranslator.new.to_katello_speak(key.underscore) }
+          @report.keys.each { |key| result[key] = KatelloToCandlepinTranslator.new.to_katello_speak(key.underscore) }
           result
         end
 
         def keys
           guide = key_translation_mapping
-          guide.keys.map{|key| guide[key] }
+          guide.keys.map { |key| guide[key] }
         end
 
         def get(key)
           ReportFormatter.new.format(@report[key] || @report[key_translation_mapping.invert[key]])
         end
 
-        def has_key?(key)
+        def key?(key)
           @report.keys.include?(key) || key_translation_mapping.values.include?(key)
         end
 
         def method_missing(method_name, *arguments, &block)
-          if has_key?(method_name.to_s)
+          if key?(method_name.to_s)
             get(method_name.to_s)
           else
             super
@@ -57,7 +57,7 @@ module Actions
         end
 
         def respond_to_missing?(method_name, include_private = false)
-          has_key?(method_name.to_s) || super
+          key?(method_name.to_s) || super
         end
 
         def to_hash
@@ -68,7 +68,7 @@ module Actions
           result
         end
 
-        def to_json(options = nil) 
+        def to_json(*)
           result = {}
           @report.keys.each do |key|
             result[key_translation_mapping[key]] = ReportFormatter.new.format(@report[key])
@@ -81,11 +81,11 @@ module Actions
         CP_TO_KAT_SPEAK = {
           'consumer' => 'system',
           'owner' => 'system',
-          'compliance' => 'subscription',
+          'compliance' => 'subscription'
         }
 
         def to_katello_speak(input)
-          CP_TO_KAT_SPEAK.keys.inject(input.clone) do |result, candlepin_keyword|
+          CP_TO_KAT_SPEAK.keys.reject(input.clone) do |result, candlepin_keyword|
             result.gsub(candlepin_keyword, CP_TO_KAT_SPEAK[candlepin_keyword])
           end
         end
@@ -96,7 +96,7 @@ module Actions
         attr_accessor :members
 
         def initialize(members)
-          @members = members.map{|m| ReportFormatter.new.format(m)}
+          @members = members.map { |m| ReportFormatter.new.format(m) }
         end
 
         def each(&block)
@@ -104,8 +104,8 @@ module Actions
             block.call(member)
           end
         end
-        
-        def to_json(options = nil)
+
+        def to_json(*)
           ::JSON.generate(@members)
         end
       end
