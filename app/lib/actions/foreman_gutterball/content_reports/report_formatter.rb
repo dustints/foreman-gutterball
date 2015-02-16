@@ -85,7 +85,7 @@ module Actions
         }
 
         def to_katello_speak(input)
-          CP_TO_KAT_SPEAK.keys.reject(input.clone) do |result, candlepin_keyword|
+          CP_TO_KAT_SPEAK.keys.reduce(input.clone) do |result, candlepin_keyword|
             result.gsub(candlepin_keyword, CP_TO_KAT_SPEAK[candlepin_keyword])
           end
         end
