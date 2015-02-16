@@ -25,7 +25,8 @@ module ForemanGutterball
 
     initializer 'foreman_gutterball.register_actions', :before => 'foreman_tasks.initialize_dynflow' do
       ForemanTasks.dynflow.require!
-      ForemanTasks.dynflow.config.eager_load_paths.concat(["#{ForemanGutterball::Engine.root}/app/lib/foreman_gutterball/actions"])
+      ForemanTasks.dynflow.config.eager_load_paths.concat(
+        ["#{ForemanGutterball::Engine.root}/app/lib/foreman_gutterball/actions"])
     end
 
     rake_tasks do
