@@ -12,6 +12,7 @@ module ForemanGutterball
         param :status, ['valid', 'invalid', 'partial'], :desc => N_('Filter results on content host status.')
         param :on_date, Date, :desc => N_('Date to filter on. If not given, defaults to NOW. Results will be limited ' \
           'to status records that were last reported before or on the given date.')
+        param :include, Array, :desc => N_('fields to filter on like consumer.name,status.status') 
         def system_status
           zomg_reports!('consumer_status')
         end
@@ -43,6 +44,8 @@ module ForemanGutterball
         private
 
         def zomg_reports!(report_type)
+          require 'debugger'
+          debugger
           task = async_task(::Actions::ForemanGutterball::ContentReports::Report, report_type, param_filter(params))
           respond_for_async :resource => task
         end
@@ -52,7 +55,9 @@ module ForemanGutterball
         end
 
         def system_status_filter(params)
-          params.permit(*%w(system_id organization_id status on_date))
+          result = params.permit(*%w(system_id organization_id status on_date include))
+          result[:include] ||= ['consumer.name', 'status.status'] 
+          result
         end
 
         def system_trend_filter(params)

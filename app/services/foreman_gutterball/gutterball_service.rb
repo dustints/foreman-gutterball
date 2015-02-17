@@ -27,12 +27,39 @@ module ForemanGutterball
       JSON.parse self.class.get(path, default_headers)
     end
 
+    def hash_to_query(query_parameters)
+      query_parameters.reduce("?") do |result, (current_key, current_value) |
+        result << "&" unless result == "?"
+        if current_value.is_a?(Array)
+          current_value.each { |value| result << "#{current_key.to_s}=#{self.class.url_encode(value)}" }
+        else
+          result << "#{current_key.to_s}=#{self.class.url_encode(current_value)}"
+        end
+      end
+    end
+
     def report(report_key, query_params)
       format_query(query_params)
-      path = self.class.join_path(prefix, 'reports', report_key, 'run', self.class.hash_to_query(query_params))
+      require 'debugger'
+      debugger
+      path = self.class.join_path(prefix, 'reports', report_key, 'run', hash_to_query(query_params))
       # might need a SAX parser after looking at all that data
-      resp = JSON.parse(self.class.get(path, default_headers))
+      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstart'
+      Rails.logger.error(Time.now.to_s)
+      raw = self.class.get(path, default_headers)
+      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstop'
+      Rails.logger.error(Time.now.to_s)
+      File.new('/tmp/allout', 'w').write(raw)
+      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstartparse'
+      Rails.logger.error(Time.now.to_s)
+      resp = JSON.parse(raw)
+      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxendparse'
+      Rails.logger.error(Time.now.to_s)
+      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstartparse1'
+      Rails.logger.error(Time.now.to_s)
       formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
+      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxendparse1'
+      Rails.logger.error(Time.now.to_s)
       send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
     end
 
@@ -47,7 +74,9 @@ module ForemanGutterball
       params[:owner] = 'redhat' # temporarily to test against another server
       params.delete(:organization_id)
 
-      params[:per_page] ||= 100
+      #params[:include] = "consumer.name,status.status"
+      #params[:include] = "consumer.name,status.status"
+      #params[:per_page] ||= 100
       params[:custom_results] = 1
     end
 
