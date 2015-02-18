@@ -59,8 +59,6 @@ module ForemanGutterball
         end
 
         def system_trend_filter(params)
-          require 'debugger'
-          debugger
           result = params.permit(*%w(system_id organization_id hours start_date end_date include))
           result[:include] ||= ['date', 'status.status'] 
           result

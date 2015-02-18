@@ -39,20 +39,11 @@ module ForemanGutterball
     end
 
     def report(report_key, query_params)
-      require 'debugger'
-      debugger
       format_query(query_params)
       path = self.class.join_path(prefix, 'reports', report_key, 'run', hash_to_query(query_params))
       # might need a SAX parser after looking at all that data
       raw = self.class.get(path, default_headers)
-      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstop'
-      Rails.logger.error(Time.now.to_s)
-      File.new('/tmp/allout', 'w').write(raw)
-      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstartparse'
-      Rails.logger.error(Time.now.to_s)
       resp = JSON.parse(raw)
-      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxendparse'
-      Rails.logger.error(Time.now.to_s)
       send("format_#{report_key}_response", resp) # REFLECTION!!!11!1
     end
 
@@ -75,15 +66,11 @@ module ForemanGutterball
 
     def format_consumer_status_response(response)
       # do all your crazy shit here
-      require 'debugger'
-      debugger
       ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(
         ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(response))
     end
 
     def format_consumer_trend_response(response)
-      require 'debugger'
-      debugger
       ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(
         ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(response))
     end
