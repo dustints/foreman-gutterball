@@ -26,12 +26,25 @@ module Actions
            end
            return out
          elsif (report).is_a? (ReportArrayFormatter)
-           result = []
-           report.each_with_index do |r, index|
-             result << flatten(r, parent.nil? ? nil : format_parent(parent, index.to_s))
-           end
-           return result
+           flatten_array(report, parent, items)
          end
+        end
+
+        def flatten_array(report, parent, items)
+           if(parent.nil?)
+             result = []
+             report.each_with_index do |r, index|
+               result << flatten(r, parent.nil? ? nil : format_parent(parent, index.to_s))
+             end
+             return result
+           else
+             result = {}
+             report.each_with_index do |r, index|
+               name = parent.nil? ? nil : format_parent(parent, index.to_s)
+               result[name] = flatten(r, name, items)
+             end
+             return result.merge(items)
+           end
         end
 
         # primative output rather than serilization
@@ -50,7 +63,7 @@ module Actions
         end
 
         def to_json(*)
-          to_s
+          @wrapped.to_json
         end
       end
 
