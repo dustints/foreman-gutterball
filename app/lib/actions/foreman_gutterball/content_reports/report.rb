@@ -10,6 +10,10 @@ module Actions
           service = ::ForemanGutterball::GutterballService.new
           output[:report_data] = service.report(input[:report_type], input[:params])
         end
+
+        def humanized_output
+          ""
+        end
       end
     end
   end
