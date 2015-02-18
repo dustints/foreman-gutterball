@@ -44,8 +44,6 @@ module ForemanGutterball
         private
 
         def zomg_reports!(report_type)
-          require 'debugger'
-          debugger
           task = async_task(::Actions::ForemanGutterball::ContentReports::Report, report_type, param_filter(params))
           respond_for_async :resource => task
         end
@@ -61,7 +59,11 @@ module ForemanGutterball
         end
 
         def system_trend_filter(params)
-          params.permit(*%w(system_id organization_id hours start_date end_date))
+          require 'debugger'
+          debugger
+          result = params.permit(*%w(system_id organization_id hours start_date end_date include))
+          result[:include] ||= ['date', 'status.status'] 
+          result
         end
 
         def status_trend_filter(params)

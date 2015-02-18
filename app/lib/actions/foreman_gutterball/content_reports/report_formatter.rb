@@ -7,18 +7,50 @@ module Actions
             ::Actions::ForemanGutterball::ContentReports::ReportHashFormatter.new(report)
           elsif report.is_a?(Array)
             ::Actions::ForemanGutterball::ContentReports::ReportArrayFormatter.new(report)
-          elsif report.is_a?(String)
-            report
-          elsif report.nil?
-            'nil'
           else
-            report.to_s
+            ReportPrimativeFormatter.new(report)
           end
+        end
+
+        def format_parent(parent, key)
+          parent.nil? ? key : "#{parent}_#{key}"
+        end
+
+        def flatten(report, parent = nil,items = {})
+         if(report.is_a?(ReportPrimativeFormatter))
+           items[parent] = report.to_s
+           return items
+         elsif (report).is_a? (ReportHashFormatter)
+           out = report.keys.reduce({}) do |res, key|
+             items.merge(flatten(report.get(key), format_parent(parent, key) , items) )
+           end
+           return out
+         elsif (report).is_a? (ReportArrayFormatter)
+           result = []
+           report.each_with_index do |r, index|
+             result << flatten(r, parent.nil? ? nil : format_parent(parent, index.to_s))
+           end
+           return result
+         end
         end
 
         # primative output rather than serilization
         def serialize(report)
           JSON.parse(::JSON.generate(format(report)))
+        end
+      end
+
+      class ReportPrimativeFormatter
+        def initialize(wrapped)
+          @wrapped = wrapped
+        end
+
+        def to_s
+          @wrapped.to_s || 'nil'
+        end
+
+        def to_json(*)
+          to_s
         end
       end
 
@@ -58,14 +90,6 @@ module Actions
 
         def respond_to_missing?(method_name, include_private = false)
           key?(method_name.to_s) || super
-        end
-
-        def to_hash
-          result = {}
-          @report.keys.each do |key|
-            result[key_translation_mapping[key]] = ReportFormatter.new.format(@report[key])
-          end
-          result
         end
 
         def to_json(*)

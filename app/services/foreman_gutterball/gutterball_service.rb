@@ -28,10 +28,10 @@ module ForemanGutterball
     end
 
     def hash_to_query(query_parameters)
-      query_parameters.reduce("?") do |result, (current_key, current_value) |
+      output = query_parameters.reduce("?") do |result, (current_key, current_value) |
         result << "&" unless result == "?"
         if current_value.is_a?(Array)
-          current_value.each { |value| result << "#{current_key.to_s}=#{self.class.url_encode(value)}" }
+          result << current_value.map{ |value| "#{current_key.to_s}=#{self.class.url_encode(value)}" }.join('&')
         else
           result << "#{current_key.to_s}=#{self.class.url_encode(current_value)}"
         end
@@ -39,13 +39,11 @@ module ForemanGutterball
     end
 
     def report(report_key, query_params)
-      format_query(query_params)
       require 'debugger'
       debugger
+      format_query(query_params)
       path = self.class.join_path(prefix, 'reports', report_key, 'run', hash_to_query(query_params))
       # might need a SAX parser after looking at all that data
-      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstart'
-      Rails.logger.error(Time.now.to_s)
       raw = self.class.get(path, default_headers)
       Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstop'
       Rails.logger.error(Time.now.to_s)
@@ -55,12 +53,7 @@ module ForemanGutterball
       resp = JSON.parse(raw)
       Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxendparse'
       Rails.logger.error(Time.now.to_s)
-      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxstartparse1'
-      Rails.logger.error(Time.now.to_s)
-      formatted_resp = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(resp)
-      Rails.logger.error 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxendparse1'
-      Rails.logger.error(Time.now.to_s)
-      send("format_#{report_key}_response", formatted_resp) # REFLECTION!!!11!1
+      send("format_#{report_key}_response", resp) # REFLECTION!!!11!1
     end
 
     private
@@ -82,15 +75,21 @@ module ForemanGutterball
 
     def format_consumer_status_response(response)
       # do all your crazy shit here
-      response
+      require 'debugger'
+      debugger
+      ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(
+        ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(response))
     end
 
     def format_consumer_trend_response(response)
-      # crazy schtuff
-      response
+      require 'debugger'
+      debugger
+      ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(
+        ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(response))
     end
 
     def format_status_trend_response(response)
+      response = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(response)
       response.map do |status|
         timestamp = status[0]
         { 'timestamp' => timestamp }.merge(status[1])
