@@ -12,7 +12,7 @@ module Actions
         end
 
         def humanized_output
-          ""
+          ''
         end
       end
     end

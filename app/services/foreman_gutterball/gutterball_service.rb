@@ -28,12 +28,12 @@ module ForemanGutterball
     end
 
     def hash_to_query(query_parameters)
-      output = query_parameters.reduce("?") do |result, (current_key, current_value) |
-        result << "&" unless result == "?"
+      query_parameters.reduce('?') do |result, (current_key, current_value) |
+        result << '&' unless result == '?'
         if current_value.is_a?(Array)
-          result << current_value.map{ |value| "#{current_key.to_s}=#{self.class.url_encode(value)}" }.join('&')
+          result << current_value.map { |value| "#{current_key}=#{self.class.url_encode(value)}" }.join('&')
         else
-          result << "#{current_key.to_s}=#{self.class.url_encode(current_value)}"
+          result << "#{current_key}=#{self.class.url_encode(current_value)}"
         end
       end
     end
@@ -58,9 +58,6 @@ module ForemanGutterball
       params[:owner] = 'redhat' # temporarily to test against another server
       params.delete(:organization_id)
 
-      #params[:include] = "consumer.name,status.status"
-      #params[:include] = "consumer.name,status.status"
-      #params[:per_page] ||= 100
       params[:custom_results] = 1
     end
 

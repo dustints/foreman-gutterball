@@ -15,35 +15,35 @@ module ForemanGutterball
         parent.nil? ? key : "#{parent}_#{key}"
       end
 
-      def flatten(report, parent = nil,items = {})
-       if(report.is_a?(ReportPrimativeFormatter))
-         items[parent] = report.to_s
-         return items
-       elsif ((report).is_a?(ReportHashFormatter))
-         out = report.keys.reduce({}) do |res, key|
-           items.merge(flatten(report.get(key), format_parent(parent, key) , items) )
-         end
-         return out
-       elsif ((report).is_a?(ReportArrayFormatter))
-         flatten_array(report, parent, items)
-       end
+      def flatten(report, parent = nil, items = {})
+        if report.is_a?(ReportPrimativeFormatter)
+          items[parent] = report.to_s
+          return items
+        elsif report.is_a?(ReportHashFormatter)
+          out = report.keys.reduce({}) do |res, key|
+            res.merge(items.merge(flatten(report.get(key), format_parent(parent, key), items)))
+          end
+          return out
+        elsif report.is_a?(ReportArrayFormatter)
+          flatten_array(report, parent, items)
+        end
       end
 
       def flatten_array(report, parent, items)
-         if(parent.nil?)
-           result = []
-           report.each_with_index do |r, index|
-             result << flatten(r, parent.nil? ? nil : format_parent(parent, index.to_s))
-           end
-           return result
-         else
-           result = {}
-           report.each_with_index do |r, index|
-             name = parent.nil? ? nil : format_parent(parent, index.to_s)
-             result[name] = flatten(r, name, items)
-           end
-           return result.merge(items)
-         end
+        if parent.nil?
+          result = []
+          report.each_with_index do |r, index|
+            result << flatten(r, parent.nil? ? nil : format_parent(parent, index.to_s))
+          end
+          return result
+        else
+          result = {}
+          report.each_with_index do |r, index|
+            name = parent.nil? ? nil : format_parent(parent, index.to_s)
+            result[name] = flatten(r, name, items)
+          end
+          return result.merge(items)
+        end
       end
 
       # primative output rather than serilization
