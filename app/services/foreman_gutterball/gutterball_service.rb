@@ -62,16 +62,27 @@ module ForemanGutterball
       response.map do |member|
         { :name => member['consumer']['name'],
           :status => member['status']['status'],
-          :date => member['status']['date'] }
+          :date => iso8601_to_yyyy_mm_dd(member['status']['date']) }
       end
     end
 
     def format_consumer_trend_response(response)
-      response
+      response.map do |member|
+        { :date => iso8601_to_yyyy_mm_dd(member['status']['date']),
+          :status => member['status']['status'] }
+      end
     end
 
     def format_status_trend_response(response)
-      response
+      template = { :valid => 0, :invalid => 0, :partial => 0 }
+      response.inject([]) do |resp, (datetime, values)|
+        resp << template.merge(values).merge(:date => iso8601_to_yyyy_mm_dd(datetime))
+        resp
+      end
+    end
+
+    def iso8601_to_yyyy_mm_dd(datetime)
+      DateTime.iso8601(datetime).strftime("%Y-%m-%d")
     end
   end
 end
