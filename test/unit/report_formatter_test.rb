@@ -394,7 +394,7 @@ class ReportFormatterTest < ActiveSupport::TestCase
 
   test 'translating cp terms to katello terms' do
     resp = JSON.parse(EXAMPLE)
-    formatted = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(resp)
+    formatted = ::ForemanGutterball::Formatters::ReportFormatter.new.format(resp)
     require 'debugger'
     debugger
     assert_equal formatted.first.system.system_state.system.to_s, 'redhat'
@@ -402,7 +402,7 @@ class ReportFormatterTest < ActiveSupport::TestCase
 
   test 'json output' do
     resp = JSON.parse(EXAMPLE)
-    json = ::JSON.generate(::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(resp))
+    json = ::JSON.generate(::ForemanGutterball::Formatters::ReportFormatter.new.format(resp))
     require 'debugger'
     debugger
     obj = ::JSON.parse(json)
@@ -411,10 +411,8 @@ class ReportFormatterTest < ActiveSupport::TestCase
 
   test 'flatten output' do
     resp = JSON.parse(EXAMPLE)
-    wrapped = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(resp)
-    flattened = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(wrapped)
-    require 'debugger'
-    debugger
+    wrapped = ::ForemanGutterball::Formatters::ReportFormatter.new.format(resp)
+    flattened = ::ForemanGutterball::Formatters::ReportFormatter.new.flatten(wrapped)
     assert_equal flattened.first['system_system_state_system'], 'redhat'
   end
 end

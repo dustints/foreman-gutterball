@@ -66,17 +66,17 @@ module ForemanGutterball
 
     def format_consumer_status_response(response)
       # do all your crazy shit here
-      ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(
-        ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(response))
+      ::ForemanGutterball::Formatters::ReportFormatter.new.flatten(
+        ::ForemanGutterball::Formatters::ReportFormatter.new.format(response))
     end
 
     def format_consumer_trend_response(response)
-      ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.flatten(
-        ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.format(response))
+      ::ForemanGutterball::Formatters::ReportFormatter.new.flatten(
+        ::ForemanGutterball::Formatters::ReportFormatter.new.format(response))
     end
 
     def format_status_trend_response(response)
-      response = ::Actions::ForemanGutterball::ContentReports::ReportFormatter.new.serialize(response)
+      response = ::ForemanGutterball::Formatters::ReportFormatter.new.serialize(response)
       response.map do |status|
         timestamp = status[0]
         { 'timestamp' => timestamp }.merge(status[1])
