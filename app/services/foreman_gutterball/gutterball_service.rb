@@ -54,10 +54,6 @@ module ForemanGutterball
         params[:consumer_uuid] = params.delete(:system_id)
       end
 
-      # params[:owner] = Organization.find(params[:organization_id]).label
-      params[:owner] = 'redhat' # temporarily to test against another server
-      params.delete(:organization_id)
-
       params[:custom_results] = 1
     end
 
