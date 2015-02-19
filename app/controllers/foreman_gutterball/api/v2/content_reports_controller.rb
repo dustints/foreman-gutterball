@@ -12,7 +12,6 @@ module ForemanGutterball
         param :status, ['valid', 'invalid', 'partial'], :desc => N_('Filter results on content host status.')
         param :on_date, Date, :desc => N_('Date to filter on. If not given, defaults to NOW. Results will be limited ' \
           'to status records that were last reported before or on the given date.')
-        param :include, Array, :desc => N_('fields to filter on like consumer.name,status.status')
         def system_status
           zomg_reports!('consumer_status')
         end
@@ -35,8 +34,8 @@ module ForemanGutterball
         api :GET, '/content_reports/status_trend', N_('Show the per-day counts of content-hosts, grouped by ' \
           'subscription status, optionally limited to a date range.')
         param :organization_id, :identifier, :desc => N_('Organization ID'), :required => true
-        param :start_date, Date, :desc => N_('Start date')
-        param :end_date, Date, :desc => N_('End date')
+        param :start_date, Date, :desc => N_('Start date. Used in conjuction with end_date.')
+        param :end_date, Date, :desc => N_('End date. Used in conjection with start_date.')
         def status_trend
           zomg_reports!('status_trend')
         end
@@ -53,15 +52,11 @@ module ForemanGutterball
         end
 
         def system_status_filter(params)
-          result = params.permit(*%w(system_id organization_id status on_date include))
-          result[:include] ||= ['consumer.name', 'status.status']
-          result
+          params.permit(*%w(system_id organization_id status on_date))
         end
 
         def system_trend_filter(params)
-          result = params.permit(*%w(system_id organization_id hours start_date end_date include))
-          result[:include] ||= ['date', 'status.status']
-          result
+          params.permit(*%w(system_id organization_id hours start_date end_date))
         end
 
         def status_trend_filter(params)

@@ -44,7 +44,7 @@ module ForemanGutterball
       # might need a SAX parser after looking at all that data
       raw = self.class.get(path, default_headers)
       resp = JSON.parse(raw)
-      send("format_#{report_key}_response", resp) # REFLECTION!!!11!1
+      send("format_#{report_key}_response", resp)
     end
 
     private
@@ -54,26 +54,24 @@ module ForemanGutterball
         params[:consumer_uuid] = params.delete(:system_id)
       end
 
-      params[:custom_results] = 1
+      params[:owner] = Organization.find(params[:organization_id]).label
+      params.delete(:organization_id)
     end
 
     def format_consumer_status_response(response)
-      # do all your crazy shit here
-      ::ForemanGutterball::Formatters::ReportFormatter.new.flatten(
-        ::ForemanGutterball::Formatters::ReportFormatter.new.format(response))
+      response.map do |member|
+        { :name => member['consumer']['name'],
+          :status => member['status']['status'],
+          :date => member['status']['date'] }
+      end
     end
 
     def format_consumer_trend_response(response)
-      ::ForemanGutterball::Formatters::ReportFormatter.new.flatten(
-        ::ForemanGutterball::Formatters::ReportFormatter.new.format(response))
+      response
     end
 
     def format_status_trend_response(response)
-      response = ::ForemanGutterball::Formatters::ReportFormatter.new.serialize(response)
-      response.map do |status|
-        timestamp = status[0]
-        { 'timestamp' => timestamp }.merge(status[1])
-      end
+      response
     end
   end
 end
